@@ -1,0 +1,58 @@
+name: Create a github release for the spark8t Python library
+
+env:
+  BRANCH: ${{ github.ref_name }}
+  VERSION: 3.4.0
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+
+  release-checks:
+    name: Checks before pkg build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - id: version-vs-tag-check
+        name: Check if tag version matches project version
+        run: |
+          if [[ "$BRANCH" != "v$VERSION" ]]; then exit 1; fi
+
+  autorelease:
+    name: Release the package on github
+    needs: release-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: true
+    steps:
+      - id: checkout
+        name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH }}
+          fetch-depth: 0
+      - id: build-package
+        name: Build package
+        run: |
+          mkdir downloads
+          cd downloads
+          echo 'alpha'    > alpha.html
+          echo 'bravo'    > bravo.html
+          echo 'charlie'  > charlie.html
+          cd ..
+          zip -r myzip.zip downloads
+      - name: Add version to environment vars
+        run: |
+          echo "PROJECT_VERSION=${{ env.VERSION }}" >> $GITHUB_ENV
+      - name: Create Github Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            myzip.zip
