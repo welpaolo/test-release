@@ -2,7 +2,7 @@ name: Create a github release for the spark8t Python library
 
 env:
   BRANCH: ${{ github.ref_name }}
-  VERSION: 0.0.1
+  VERSION: 3.4.0
 
 on:
   push:
@@ -37,9 +37,6 @@ jobs:
         with:
           ref: ${{ env.BRANCH }}
           fetch-depth: 0
-        name: Set up build environment
-        run: |
-          make setup
       - id: build-package
         name: Build package
         run: |
