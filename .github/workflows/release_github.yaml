@@ -16,7 +16,6 @@ jobs:
     name: Checks before pkg build
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: code-checks
     steps:
       - id: version-vs-tag-check
         name: Check if tag version matches project version
